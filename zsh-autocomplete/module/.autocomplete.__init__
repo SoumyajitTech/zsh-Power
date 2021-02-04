@@ -1,0 +1,52 @@
+#!/bin/zsh
+zmodload -Fa zsh/files b:zf_mkdir b:zf_rm
+zmodload -Fa zsh/parameter p:functions
+zmodload -F zsh/zutil b:zstyle
+builtin autoload -Uz add-zsh-hook .autocomplete.mathfunc .autocomplete.screen-space
+.autocomplete.mathfunc
+
+.autocomplete.__init__.precmd() {
+  emulate -L zsh; setopt $_autocomplete__options
+
+  # Workaround for https://github.com/zdharma/zinit/issues/366
+  [[ -v functions[.zinit-shade-off] ]] &&
+    .zinit-shade-off "${___mode:-load}"
+
+  local 0=${(%):-%N}
+  add-zsh-hook -d precmd $0
+  unfunction $0
+
+  # Don't let `|` remove suffixes.
+  [[ -v ZLE_REMOVE_SUFFIX_CHARS ]] ||
+    export ZLE_REMOVE_SUFFIX_CHARS=$' \t\n;&'
+
+  export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+  if [[ ! -d $XDG_CACHE_HOME ]]; then
+    zmodload -F zsh/files b:zf_mkdir
+    zf_mkdir -p $XDG_CACHE_HOME
+  fi
+
+  add-zsh-hook precmd .autocomplete.screen-space
+  local -i pslines=${#${(%%)PS1}//[^$'\n']}
+  typeset -gHi _autocomplete__screen_space=$(( LINES - pslines - 2 ))
+
+  local mod; for mod in compinit config widget key key-binding recent-dirs async; do
+    mod=.autocomplete.$mod.precmd
+    if [[ -v functions[$mod] ]]; then
+      $mod
+      unfunction $mod
+    fi
+  done
+}
+
+local mod; for mod in compinit config widget key key-binding recent-dirs async; do
+  if ! zstyle -t ':autocomplete:' $mod false no off 0; then
+    mod=.autocomplete.$mod
+    builtin autoload -Uz $mod
+    $mod
+    unfunction $mod
+  fi
+done
+
+add-zsh-hook precmd .autocomplete.__init__.precmd
+unfunction .autocomplete.__init__
