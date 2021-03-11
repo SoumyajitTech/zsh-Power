@@ -1,5 +1,6 @@
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
 # neofetch
+~/.local/bin/pfetch
 
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
@@ -17,6 +18,13 @@ setopt INC_APPEND_HISTORY
 setopt HIST_IGNORE_DUPS
 #add timestamp for each entry
 setopt EXTENDED_HISTORY
+
+# Basic auto/tab complete:
+# autoload -U compinit
+# zstyle ':completion:*' menu select
+# zmodload zsh/complist
+# compinit
+# _comp_options+=(globdots)		# Include hidden files.
 
 # Edit line in vim buffer ctrl-v
 autoload edit-command-line; zle -N edit-command-line
@@ -47,6 +55,8 @@ source ~/.config/zsh/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh 2>/dev/n
 # Auto-completion
 source ~/.config/zsh/zsh-autocomplete/zsh-autocomplete.plugin.zsh
 zstyle ':autocomplete:tab:*' widget-style menu-select
+zstyle -e ':completion:*:default' list-colors 'reply=("${PREFIX:+=(#bi)($PREFIX:t)(?)*==34=34}:${(s.:.)LS_COLORS}")';
+
 # Color
 source ~/.config/zsh/zsh-colored-man-pages/colored-man-pages.plugin.zsh
 source ~/.config/zsh/colorize/colorize.plugin.zsh
@@ -183,6 +193,7 @@ alias cp="cp -i"                          # confirm before overwriting something
 alias df='df -h'                          # human-readable sizes
 alias free='free -m'                      # show sizes in MB
 alias vi='nvim'
+alias yay='paru'
 alias vim='sudo -E nvim'
 # alias sc='sc-im'
 alias sp='sudo pacman'
