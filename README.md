@@ -1,1 +1,1 @@
-# zsh-Power
+# zsh
